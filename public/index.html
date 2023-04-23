@@ -1,89 +1,83 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Welcome to Firebase Hosting</title>
+<head>
+	<meta charset="UTF-8">
+	<title>Minecraft Shader Pack Progress Report</title>
+	<style>
+		body {
+			font-family: Arial, sans-serif;
+			padding: 20px;
+			background-color: #f5f5f5;
+		}
+		h1 {
+			font-size: 48px;
+			margin-bottom: 20px;
+			text-align: center;
+		}
+		h2 {
+			font-size: 36px;
+			margin-bottom: 10px;
+			color: #1E90FF;
+		}
+		p {
+			font-size: 18px;
+			margin-bottom: 20px;
+			line-height: 1.5;
+		}
+		img {
+			max-width: 100%;
+			margin-bottom: 20px;
+			border-radius: 10px;
+			box-shadow: 2px 2px 8px rgba(0,0,0,0.2);
+		}
+		.container {
+			max-width: 800px;
+			margin: 0 auto;
+		}
+		.section {
+			margin-bottom: 60px;
+		}
+		.byline {
+			font-size: 16px;
+			font-style: italic;
+			color: #666;
+			text-align: center;
+		}
+		.subtitle {
+			font-size: 14px;
+			color: #666;
+			text-align: center;
+			margin-top: 10px;
+		}
+	</style>
+</head>
+<body>
+	<div class="container">
+		<h1>Making Minecraft Look Good</h1>
 
-    <!-- update the version number as needed -->
-    <script defer src="/__/firebase/9.20.0/firebase-app-compat.js"></script>
-    <!-- include only the Firebase features as you need -->
-    <script defer src="/__/firebase/9.20.0/firebase-auth-compat.js"></script>
-    <script defer src="/__/firebase/9.20.0/firebase-database-compat.js"></script>
-    <script defer src="/__/firebase/9.20.0/firebase-firestore-compat.js"></script>
-    <script defer src="/__/firebase/9.20.0/firebase-functions-compat.js"></script>
-    <script defer src="/__/firebase/9.20.0/firebase-messaging-compat.js"></script>
-    <script defer src="/__/firebase/9.20.0/firebase-storage-compat.js"></script>
-    <script defer src="/__/firebase/9.20.0/firebase-analytics-compat.js"></script>
-    <script defer src="/__/firebase/9.20.0/firebase-remote-config-compat.js"></script>
-    <script defer src="/__/firebase/9.20.0/firebase-performance-compat.js"></script>
-    <!-- 
-      initialize the SDK after all desired features are loaded, set useEmulator to false
-      to avoid connecting the SDK to running emulators.
-    -->
-    <script defer src="/__/firebase/init.js?useEmulator=true"></script>
+		<div class="byline">By [Your Name]</div>
+		<p class="subtitle">View this report online at [insert URL here]</p>
 
-    <style media="screen">
-      body { background: #ECEFF1; color: rgba(0,0,0,0.87); font-family: Roboto, Helvetica, Arial, sans-serif; margin: 0; padding: 0; }
-      #message { background: white; max-width: 360px; margin: 100px auto 16px; padding: 32px 24px; border-radius: 3px; }
-      #message h2 { color: #ffa100; font-weight: bold; font-size: 16px; margin: 0 0 8px; }
-      #message h1 { font-size: 22px; font-weight: 300; color: rgba(0,0,0,0.6); margin: 0 0 16px;}
-      #message p { line-height: 140%; margin: 16px 0 24px; font-size: 14px; }
-      #message a { display: block; text-align: center; background: #039be5; text-transform: uppercase; text-decoration: none; color: white; padding: 16px; border-radius: 4px; }
-      #message, #message a { box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24); }
-      #load { color: rgba(0,0,0,0.4); text-align: center; font-size: 13px; }
-      @media (max-width: 600px) {
-        body, #message { margin-top: 0; background: white; box-shadow: none; }
-        body { border-top: 16px solid #ffa100; }
-      }
-    </style>
-  </head>
-  <body>
-    <div id="message">
-      <h2>Welcome</h2>
-      <h1>Firebase Hosting Setup Complete</h1>
-      <p>You're seeing this because you've successfully setup Firebase Hosting. Now it's time to go build something extraordinary!</p>
-      <a target="_blank" href="https://firebase.google.com/docs/hosting/">Open Hosting Documentation</a>
-    </div>
-    <p id="load">Firebase SDK Loading&hellip;</p>
+		<div class="section">
+			<h2>Cell Shader Implementation</h2>
+			<p>For this project, I implemented a basic cell shader by applying a screen-space post-processing effect on the final frame-buffer before the image is rendered. The cell shader is inspired by the cel shading technique used in many popular video games such as <em>Borderlands</em> and <em>The Legend of Zelda: The Wind Waker</em>. This gives the Minecraft world a unique, stylized look that is different from the default look of the game. The shader works by dividing the pixel values into discrete ranges, which are then rendered as a flat color. Here is an example of what the cell shader looks like:</p>
+			<img src="Screenshot from 2023-04-12 18-55-04.png" alt="Minecraft world with cell shader applied">
+		</div>
 
-    <script>
-      document.addEventListener('DOMContentLoaded', function() {
-        const loadEl = document.querySelector('#load');
-        // // 🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥
-        // // The Firebase SDK is initialized and available here!
-        //
-        // firebase.auth().onAuthStateChanged(user => { });
-        // firebase.database().ref('/path/to/ref').on('value', snapshot => { });
-        // firebase.firestore().doc('/foo/bar').get().then(() => { });
-        // firebase.functions().httpsCallable('yourFunction')().then(() => { });
-        // firebase.messaging().requestPermission().then(() => { });
-        // firebase.storage().ref('/path/to/ref').getDownloadURL().then(() => { });
-        // firebase.analytics(); // call to activate
-        // firebase.analytics().logEvent('tutorial_completed');
-        // firebase.performance(); // call to activate
-        //
-        // // 🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥
+		<div class="section">
+			<h2>Wind Effect Implementation</h2>
+			<p>Next, I implemented a very crude wind effect by writing a vertex shader that makes the leaf blocks sway. The wind effect is a common feature in many Minecraft shader packs and adds a sense of dynamism to the game. To achieve this effect, I applied an offset to the vertex position in world space before it is transformed to screen space. This offset is based on a time variable that is updated each frame, so the movement of the leaves appears to be random and natural. The wind effect is currently a work in progress, and I plan to refine it further to make it look more realistic. Here is an example of what the wind effect looks like:</p>
+			<img src="Screenshot from 2023-04-12 18-55-04.png" alt="Minecraft world with crude wind effect applied">
+		</div>
 
-        try {
-          let app = firebase.app();
-          let features = [
-            'auth', 
-            'database', 
-            'firestore',
-            'functions',
-            'messaging', 
-            'storage', 
-            'analytics', 
-            'remoteConfig',
-            'performance',
-          ].filter(feature => typeof app[feature] === 'function');
-          loadEl.textContent = `Firebase SDK loaded with ${features.join(', ')}`;
-        } catch (e) {
-          console.error(e);
-          loadEl.textContent = 'Error loading the Firebase SDK, check the console.';
-        }
-      });
-    </script>
-  </body>
+		<div class="section">
+			<h2>Basic Diffuse Lighting System</h2>
+			<p>Finally, I was able to get a basic diffuse lighting system working. The lighting of the face of each block is determined by the angle that face makes with the sun's direction. This makes the Minecraft world feel more dynamic and realistic. I accomplished this by writing a shader that computes the dot product between the normal of each face and the direction of the sun. This dot product value is then used to calculate the intensity of the lighting on the face. In addition to the sun, I also added support for ambient lighting and torches. The result is a basic diffuse lighting system that makes the Minecraft world look more immersive. Here is an example of what the basic diffuse lighting system looks like:</p>
+			<img src="Screenshot from 2023-04-12 18-55-04.png" alt="Minecraft world with basic diffuse lighting system applied">
+		</div>
+
+		<p>Overall, I am happy with the progress I have made on my custom shader pack. I look forward to continuing to refine and improve upon these effects.</p>
+	</div>
+</body>
+
 </html>
