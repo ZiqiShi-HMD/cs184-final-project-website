@@ -19,6 +19,19 @@
 			margin-bottom: 10px;
 			color: #1E90FF;
 		}
+        h3 {
+            font-size: 24px;
+            margin-bottom: 10px;
+            
+        }
+        figure {
+            font-size: 14px;
+            text-align: center;
+        }
+        video {
+            font-size: 14px;
+            text-align: center;
+        }
 		p {
 			font-size: 18px;
 			margin-bottom: 20px;
@@ -61,22 +74,75 @@
 		<div class="section">
 			<h2>Cell Shader Implementation</h2>
 			<p>For this project, I implemented a basic cell shader by applying a screen-space post-processing effect on the final frame-buffer before the image is rendered. The cell shader is inspired by the cel shading technique used in many popular video games such as <em>Borderlands</em> and <em>The Legend of Zelda: The Wind Waker</em>. This gives the Minecraft world a unique, stylized look that is different from the default look of the game. The shader works by dividing the pixel values into discrete ranges, which are then rendered as a flat color. Here is an example of what the cell shader looks like:</p>
-			<img src="Screenshot from 2023-04-12 18-55-04.png" alt="Minecraft world with cell shader applied">
+			<figure>
+				<img src="cell.png" alt="Minecraft world with cell shader applied">
+				<figcaption>Minecraft world with cell shader applied</figcaption>
+			</figure>
+			<p>Since cell shader isn't necessarily the best visual effects from a normal gameplay point of view, I also added the options to turn cell shading on and off within our shader. </p>
+			<figure>
+				<img src="cellsetting.png" alt="Option for turning cell shader on and off">
+				<figcaption>Option for turning cell shader on and off</figcaption>
+			</figure>
 		</div>
 
 		<div class="section">
 			<h2>Wind Effect Implementation</h2>
 			<p>Next, I implemented a very crude wind effect by writing a vertex shader that makes the leaf blocks sway. The wind effect is a common feature in many Minecraft shader packs and adds a sense of dynamism to the game. To achieve this effect, I applied an offset to the vertex position in world space before it is transformed to screen space. This offset is based on a time variable that is updated each frame, so the movement of the leaves appears to be random and natural. The wind effect is currently a work in progress, and I plan to refine it further to make it look more realistic. Here is an example of what the wind effect looks like:</p>
-			<img src="Screenshot from 2023-04-12 18-55-04.png" alt="Minecraft world with crude wind effect applied">
+			<video width="640" height="360" controls autoplay loop>
+				<source src="leaves.mp4" alt="Minecraft world with crude wind effect applied">
+			</video>
+			<p>Minecraft world with crude wind effect applied</p>
 		</div>
 
 		<div class="section">
 			<h2>Basic Diffuse Lighting System</h2>
-			<p>Finally, I was able to get a basic diffuse lighting system working. The lighting of the face of each block is determined by the angle that face makes with the sun's direction. This makes the Minecraft world feel more dynamic and realistic. I accomplished this by writing a shader that computes the dot product between the normal of each face and the direction of the sun. This dot product value is then used to calculate the intensity of the lighting on the face. In addition to the sun, I also added support for ambient lighting and torches. The result is a basic diffuse lighting system that makes the Minecraft world look more immersive. Here is an example of what the basic diffuse lighting system looks like:</p>
-			<img src="Screenshot from 2023-04-12 18-55-04.png" alt="Minecraft world with basic diffuse lighting system applied">
+			<h3>Light from the sun</h3>
+			<p>Finally, I was able to get a basic diffuse lighting system working. The lighting of the face of each block is determined by the angle that face makes with the sun's direction. This makes the Minecraft world feel more dynamic and realistic. I accomplished this by writing a shader that computes the dot product between the normal of each face and the direction of the sun. This dot product value is then used to calculate the intensity of sun lighting on the face, which is multiplied with the albedo value of the pixel to render the final color of the pixel. The result already makes the Minecraft world look more immersive. Here is an example of what the basic sun lighting looks like:</p>
+			<figure>
+				<img src="BasicSun.png" alt="Minecraft world with basic sun lighting applied">
+				<figcaption>Minecraft world with basic sun lighting applied</figcaption>
+			</figure>
+
+			<h3>Light Map and Shadow Map Integration</h3>
+			<p>The basic sun lighting leaves me with a few several apparent visual defects in this part that I needed to fix. First and foremost, since I implemented the diffuse lighting in the final pass of the OptiFine workflow, the render is applied to the full screen without consideration of the rendered object. This results in the sky being rendered wrong, specifically the sky becomes darker when the camera turns towards the sun, where the aforementioned brightness dot product value goes to 0. In addition, since blocks' brightness values were completely determined by the position of the sun, they appear darker even when illuminated by a light source block like torch or glowstone. Lastly, since there were no consideration of blocks blocking the sun, surfaces facing the sun are bright even when sunlight cannot hit them.</p>
+			<video width="640" height="360" controls loop>
+				<source src="sky.mp4" alt="Lighting change as camera turn towards the sun">
+			</video>
+			<p>Lighting change as camera turn towards the sun</p>
+
+			<figure>
+				<img src="FailIllum.png" alt="Light sources fail to illuminate surfaces facing away from the sun">
+				<figcaption>Light sources(Glowstone) fail to illuminate surfaces facing away from the sun</figcaption>
+			</figure>
+			<figure>
+				<img src="Night.png" alt="Abnormally bright surfaces at night">
+				<figcaption>Abnormally bright surfaces at night</figcaption>
+			</figure>
+			<p>To resolve these problems, I made use of 2 other maps in the OptiFine workflow, lightmap and shadow map. First, I resolved the illumination problem The lightmap stores two values, light intensity from the sky, and light intensity from nearby lightsources. By combining these values with the diffuse lighting intensity from the previous part, I can render the illumination effects from light sources other than the sun. </p>
+			<figure>
+				<img src="Illum.png" alt="Blocks illuminated by lightsources other than the sun">
+				<figcaption>Blocks illuminated by lightsources other than the sun</figcaption>
+			</figure>
+			<p>In this step, I also added a few options to change the rgb colors of the lightsources. Other shader packs often use a light temperature setting to allow users to tweak this, but I thought it's more fun to allow green and blue lighting.</p>
+			<figure>
+				<img src="IllumSettings.png" alt="Options for changing various lighting values">
+				<figcaption>Options for changing various lighting values</figcaption>
+			</figure>
+			<p>Then, I used the shadow map to fix the sun lighting. The shadow map simply stores a depth value between 1.0f and 0.0f that shows how far away a block is from the sun, while a sky pixel always has a distance of 1.0f and a blocked pixel always has a value of 0.0f. By multiplying this value with the sun brightness value, we can fix the sun lighting rendering and see more realistic shadows.</p>
+			<figure>
+				<img src="ShadowMapInitial.png" alt="Minecraft world after integrating sun lighting depths.">
+				<figcaption>Minecraft world after integrating sun lighting depths.</figcaption>
+			</figure>
+
+			<h3>Shadow map Distortion</h3>
+			<p>Obviously, A simple shadow map results in a blobby and low-resolution shadow. To address this issue, we implemented a shadow map distortion algorithm that allows us to store more detailed shadows closer to the avatar(camera) and less detailed shadows further away, allowing more detailed shadows in closer positions while keeping reasonable use of computational resources. After this, my shadows are no longer blobby and can better represent the real world lighting:</p>
+			<figure>
+				<img src="FinalDiffuse.png" alt="Shadows with shadow map distortion.">
+				<figcaption>Shadows with shadow map distortion.</figcaption>
+			</figure>
 		</div>
 
-		<p>Overall, I am happy with the progress I have made on my custom shader pack. I look forward to continuing to refine and improve upon these effects.</p>
+		<p>Overall, I am happy with the progress I have made on my custom shader pack. I look forward to continuing to refine and improve upon these effects. In the last week, we are looking forward to explore more in realistic water shading in addition to polishing our completed diffuse lighting shader.</p>
 	</div>
 </body>
 
