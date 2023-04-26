@@ -81,7 +81,7 @@
 			</figure>
 			<p>Since cell shader isn't necessarily the best visual effects from a normal gameplay point of view, we also added the options to turn cell shading on and off within our shader. </p>
 			<figure>
-				<img src="cellsetting.png" alt="Option for turning cell shader on and off">
+				<img src="./cellsetting.png" alt="Option for turning cell shader on and off">
 				<figcaption>Option for turning cell shader on and off</figcaption>
 			</figure>
 		</div>
@@ -91,13 +91,13 @@
 			<p>After the sucess of our cell shader, we decided to move onto a shader that adds a "wind-like" effect to the leaves of trees. The wind effect is a common feature in many Minecraft shader packs and adds a sense of dynamism to the game. We figured such an effect could be easily created by editing the vertex shader of the leaf blocks to add a time-dependant offset to the position, which would give the illusion of leaves being blown by the wind. After a bit of tweaking, we where able to get a pretty decent looking implementation:</p>
 			<figure>
 			<video width="640" height="360" controls autoplay loop>
-				<source src="leaves.mp4" alt="Minecraft world with crude wind effect applied">
+				<source src="./leaves.mp4" alt="Minecraft world with crude wind effect applied">
 			</video>
 			<figcaption>Wind effect in game</figcaption>
 
 			<p>The flutuations of water can be mimiced in the same fashion but with different offsets in the trigonometric functions.</p>
 			<video width="640" height="360" controls autoplay loop>
-				<source src="water.mp4" alt="Water fluctuations in game">
+				<source src="./water.mp4" alt="Water fluctuations in game">
 			</video>
 			<figcaption>Water fluctuations in game</figcaption>
 		</figure>
@@ -109,7 +109,7 @@
 			<h3>Light from the sun</h3>
 			<p>The first thing we tried adding to sprice up the lighting was basic "diffuse lighting" that shaded the side of blocks depending on the angle they make with the sun. This was basically a super simple directional diffuse lighting implementation, which frankly didn't look very good. But it was a good start:</p>
 			<figure>
-				<img src="BasicSun.png" alt="Minecraft world with basic sun lighting applied">
+				<img src="./BasicSun.png" alt="Minecraft world with basic sun lighting applied">
 				<figcaption>Minecraft world with basic sun lighting applied</figcaption>
 			</figure>
 
@@ -155,6 +155,18 @@
 		</div>
 
 		<p>Overall, we am happy with the progress we have made on our custom shader pack. we look forward to continuing to refine and improve upon these effects. In the last week, we are looking forward to explore more in realistic water shading in addition to polishing our completed diffuse lighting shader. If you want to checkout our progress so far, here is the repo: <a href="https://github.com/sharhar/CS184Shaders">https://github.com/sharhar/CS184Shaders</a></p>
+
+		<p>Link to slides: <a href="https://docs.google.com/presentation/d/1r5H5pfFam_XR-G6DhAJwPgxq6yN9DzBNaUS2vLthXAo/edit?usp=sharing">https://docs.google.com/presentation/d/1r5H5pfFam_XR-G6DhAJwPgxq6yN9DzBNaUS2vLthXAo/edit?usp=sharing</a></p>
+
+
+		<h3>Milestone Summary Video</h3>
+
+		<figure>
+			<video width="640" height="360" controls loop>
+				<source src="summary.mov" alt="Milestone Summary Video">
+			</video>
+			<figcaption>Milestone Summary Video</figcaption>
+		</figure>
 	</div>
 </body>
 
