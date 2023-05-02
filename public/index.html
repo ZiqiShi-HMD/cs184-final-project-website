@@ -20,8 +20,9 @@
 			color: #1E90FF;
 		}
         h3 {
-            font-size: 24px;
+            font-size: 28px;
             margin-bottom: 10px;
+			color: #29b14d;
             
         }
         figure {
@@ -33,6 +34,11 @@
             text-align: center;
         }
 		p {
+			font-size: 18px;
+			margin-bottom: 20px;
+			line-height: 1.5;
+		}
+		ol {
 			font-size: 18px;
 			margin-bottom: 20px;
 			line-height: 1.5;
@@ -69,7 +75,38 @@
 		<h1>Making Minecraft Look Good</h1>
 
 		<div class="byline">By Shahar Sandhaus, Duan Lyu, Ziqi Shi, Vincent Lee</div>
-		<p class="subtitle">View this report online: <a href="https://cs184.milestone.sandhaus.dev">https://cs184.milestone.sandhaus.dev</a></p>
+		<p class="subtitle">View this report online: <a href="https://cs184.sandhaus.dev">https://cs184.sandhaus.dev</a></p>
+
+		<div class="section">
+			<h2>Abstract</h2>
+
+			<p>For our final project in CS 184, we decided to write custom shaders for the game Minecraft. By using a popular mod for the game called <a href="https://www.optifine.net/home">Optifne</a> we where able to create a "shader pack", which is a collection of GLSL vertex and fragment shaders that are used for rending the game. By modifying these GLSL shaders, we were able to significantly alter the look of certain visual effects in the game, the most complex of which are dynamic shadow mapping and a more "realistic" water rendering system. Aside from those two big changes, we also added smaller things like a wind effect for tree leaves and an option to turn on <a href="https://en.wikipedia.org/wiki/Cel_shading">cell shading</a>.</p>
+		</div>
+
+		<div class="section">
+			<h2>Technical Approach</h2>
+
+			<h3>Optifine Overview</h3>
+
+			<p>To undersand how we implemented the following effects, it is good to undersand how the Optifine mod works. Optifine renders each frame by performing <a href="https://optifine.readthedocs.io/shaders/programs.html">a series of render passes</a>, 4 of which were modified for this project:
+
+				<ol>
+					<li><strong>Shadow Map:</strong> This is what gets run first, and as the name suggests, this is where Optifine renders the scene from the perspective of the sun and saves the data to a built in shadowmap that is accessible as a uniform in subsequent stages.</li>
+					<li><strong>Gbuffers:</strong> This is where the actual terrain, entities, water, and all other meshes are rendered. In practice there are like 20 different gbuffers shaders for all different types of meshes, but the basic idea is that the input is mesh data and the output are pixels that are drawn to our colorbuffers (there are a total of 16 color buffers we can render to).</li>
+					<li><strong>Composite:</strong> This is the stage where we compose our multiple color buffers into one singular color buffer. We can have up to 16 distinct composition stages, but we only needed to use one for this project.</li>
+					<li><strong>Final:</strong> This is the final screen space pass where we take the final composed image and render it to the framebuffer. Post processing effects can be applied here.</li>
+				</ol>
+			
+			</p>
+			
+			
+			<h3>Cell Shading</h3>
+
+			<p>The cell shader was the very fist thing we implemented, and it is very simple. The effect works by only allowing pixel brightnesses at specific discerete values. So in the code we calculate the brightness of a pixel (the magnitude of the 3d vector representing its RBG color), then clamp it to some fraction k/n where n is the number of discrete brightnesses and k is chosen to give a fraction that most closely approximates the original brightness. Then, we simply set the brightness to that value. This gives the final output an almost "cartoonish" look, that works well for some games (like <em>Borderlans</em>), but looks prety bad for Minecraft. Still, this was a good practice run, and it helped us better understand the Optifine pipeline. Here is how this effect looks:</p>
+
+			
+
+		</div>
 
 		<div class="section">
 			<h2>Cell Shader Implementation</h2>
