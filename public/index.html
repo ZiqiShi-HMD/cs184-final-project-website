@@ -104,94 +104,65 @@
 
 			<p>The cell shader was the very fist thing we implemented, and it is very simple. The effect works by only allowing pixel brightnesses at specific discerete values. So in the code we calculate the brightness of a pixel (the magnitude of the 3d vector representing its RBG color), then clamp it to some fraction k/n where n is the number of discrete brightnesses and k is chosen to give a fraction that most closely approximates the original brightness. Then, we simply set the brightness to that value. This gives the final output an almost "cartoonish" look, that works well for some games (like <em>Borderlans</em>), but looks prety bad for Minecraft. Still, this was a good practice run, and it helped us better understand the Optifine pipeline. Here is how this effect looks:</p>
 
-			
-
-		</div>
-
-		<div class="section">
-			<h2>Cell Shader Implementation</h2>
-			<p>The first thing we chose to implement for this project was a simple cell shader. Cell shading is a post processing technique where the pixel colors are divided into discrete ranges, which are then rendered as a flat brightness. This technique is employed by games like <em>Borderlands</em> and  <em>The Legend of Zelda: The Wind Waker</em> to create stylized worlds with a slightly "comic-like" look. Unlike those games, cell shading in Minecraft looks quite bad. However, it's very easy to implement, and therefore we decided to start with it. </p>
-			<p>After following a few tutorials on the basics of shading in Minecraft, we found that we could achive our goal of implementing a cell shader by modifying the fragment shader for the "final" rendering pass, which is an internal rendering pass where final post processing effects can be applied to the framebuffer. Here is what that cell shader looks like in game:</p>
 			<figure>
-				<img src="cell.png" alt="Minecraft world with cell shader applied">
-				<figcaption>Minecraft world with cell shader applied</figcaption>
+				<img src="cell_on.png" alt="Cell Shading Enabled">
+				<figcaption>Cell Shading Enabled</figcaption>
 			</figure>
-			<p>Since cell shader isn't necessarily the best visual effects from a normal gameplay point of view, we also added the options to turn cell shading on and off within our shader. </p>
 			<figure>
-				<img src="./cellsetting.png" alt="Option for turning cell shader on and off">
-				<figcaption>Option for turning cell shader on and off</figcaption>
-			</figure>
-		</div>
-
-		<div class="section">
-			<h2>Wind Effect Implementation</h2>
-			<p>After the sucess of our cell shader, we decided to move onto a shader that adds a "wind-like" effect to the leaves of trees. The wind effect is a common feature in many Minecraft shader packs and adds a sense of dynamism to the game. We figured such an effect could be easily created by editing the vertex shader of the leaf blocks to add a time-dependant offset to the position, which would give the illusion of leaves being blown by the wind. After a bit of tweaking, we where able to get a pretty decent looking implementation:</p>
-			<figure>
-			<video width="640" height="360" controls autoplay loop>
-				<source src="./leaves.mp4" alt="Minecraft world with crude wind effect applied">
-			</video>
-			<figcaption>Wind effect in game</figcaption>
-
-			<p>The flutuations of water can be mimiced in the same fashion but with different offsets in the trigonometric functions.</p>
-			<video width="640" height="360" controls autoplay loop>
-				<source src="./water.mp4" alt="Water fluctuations in game">
-			</video>
-			<figcaption>Water fluctuations in game</figcaption>
-		</figure>
-		</div>
-
-		<div class="section">
-			<h2>Advanced Lighting System</h2>
-			<p>Now that we implemented some simple effects, it was time for the big boy: <strong><em>lighting</em></strong>. Minecraft's default lighting looks pretty boring, and there is a lot of room for improvement... so we went to work.</p>
-			<h3>Light from the sun</h3>
-			<p>The first thing we tried adding to sprice up the lighting was basic "diffuse lighting" that shaded the side of blocks depending on the angle they make with the sun. This was basically a super simple directional diffuse lighting implementation, which frankly didn't look very good. But it was a good start:</p>
-			<figure>
-				<img src="./BasicSun.png" alt="Minecraft world with basic sun lighting applied">
-				<figcaption>Minecraft world with basic sun lighting applied</figcaption>
+				<img src="cell_off.png" alt="Cell Shading Disabled">
+				<figcaption>Cell Shading Disabled</figcaption>
 			</figure>
 
-			<h3>Light Map and Shadow Map Integration</h3>
-			<p>The basic solar lighting left a lot to be desired. First and foremost, since we implemented the diffuse lighting in the final pass of the OptiFine workflow, the render is applied to the full screen without consideration of the rendered object. This results in the sky being rendered wrong, specifically the sky becomes darker when the camera turns towards the sun, where the aforementioned brightness dot product value goes to 0. In addition, since blocks' brightness values were completely determined by the position of the sun, they appear darker even when illuminated by a light source block like torch or glowstone. Lastly, since there were no consideration of blocks blocking the sun, surfaces facing the sun are bright even when sunlight cannot hit them.</p>
+			<h3>Leaf Wind Effects</h3>
+
+			<p>The next thing we implemented, was a wind effect for the leaves of trees. Again, this was a relatively simple effect to implement. The way we did it is by modifiying the vertex shader of the leaves to add a position and time dependent offset to the vertex position (technically, we modifeid the shader for all terrain blocks, but we used an if statment to run this code only for leaves). To quickly approximate a wind effect without running complex physics simulations, we used the sum of two offset sin waves at slightly different frequencies to add to each dimention of the position (giving us a total of 6 sin waves of different frequencies). Since that explanation was a bit difficult to follow, here is the code that we use for this:</p>
+
+			<figure>
+				<img src="leaf_code.png" alt="Leaf wind code">
+			</figure>
+
+			<p>Despite the very simple nature of this implementation, the final effect actually looks pretty good: (all while being very fast to calculate)</p>
+
+			<figure>
+				<video width="640" height="360" controls autoplay loop>
+					<source src="./leaves.mp4" alt="Minecraft world with crude wind effect applied">
+				</video>
+			</figure>
+
+			<h3>Shadow Mapping</h3>
+
+			<p>This is where things start to get complicated. Shadow mapping is a rendering technique where the scene geomtery is rendered from the perspective of a light source, and depth information about each pixel is stored in a depth buffer. Then, in the composition stage, we can add shadows as a screen-space effect by taking the screenspace position of the pixel and it's depth, calculating that pixel's world-space position, then transforming that position to a shadow-space position. Finally, we can sample the shadow map at that position and check if the two depths match. If they do, then that pixel is exposed to the light, otherwise, it's blocked by some object. Much of the code to get this part of the implementation working was provided by the tutorial, along with code to approximate soft shadows by supersampling the shadow map and code to modify the effective "shadow space" of the image which allowed us to keep a higher resolution at areas near the player and use a smaller resolution the farther we get (this allows close up shadows to still look decent without using a MASSIVE shadowmap). </p>
+
+			<p>However, things got far more complicated when trying to get the code to be in a presentable state. While the tutorial was a great reference point, much of the provided code was buggy and it even had <strong><em>syntax errors and typos</em></strong>. Since we only get a simple "failed to compile" error when there is a syntax error, debugging those was very painful. However, even when we got the code running there were some major issues. Mostly notably, since the lighting effect was applied in the composition stage now (instead of in the terrain fragment shader as is default), the wrong lighting effects where being applied to the sky and the players hand:</p>
 			<figure>
 				<video width="640" height="360" controls loop>
 					<source src="sky.mp4" alt="Lighting change as camera turn towards the sun">
 				</video>
-				<figcaption>Lighting change as camera turn towards the sun</figcaption>
+				<figcaption>Bugs from the tutorial code</figcaption>
 			</figure>
+			
+			<p>The tutorial mentioned that these bugs would be fixed in the "next part", which never got published, so we were on our own. Our first thought was to simply move all the lighting calculations to the terrain's fragment shader. This did work sort of okay for blocks, but it meant that the player's hand, the water, all entities, and other non-terrain objects were basically not effected by shadows. This looked very bad, so we needed to figure out a way to get the effect working in the composition stage. After much time debugging, we figured out that by adding extra lines of code to all the other gbuffer fragment shaders we could write proper lighting metadata to a color attachment we used for the terrain and it would apply the proper lighting for all other objects in the scene in screen space. We assume this was the solution the tutorial was referencing, but we had to figure it out for ourselves. After we did that, we got a decent looking first attempt at a shadow that looked like this:</p>
 
-			<figure>
-				<img src="FailIllum.png" alt="Light sources fail to illuminate surfaces facing away from the sun">
-				<figcaption>Light sources(Glowstone) fail to illuminate surfaces facing away from the sun</figcaption>
-			</figure>
-			<figure>
-				<img src="Night.png" alt="Abnormally bright surfaces at night">
-				<figcaption>Abnormally bright surfaces at night</figcaption>
-			</figure>
-			<p>To resolve these problems, we made use of 2 other maps in the OptiFine workflow, lightmap and shadow map. First, we resolved the illumination problem The lightmap stores two values, light intensity from the sky, and light intensity from nearby lightsources. By combining these values with the diffuse lighting intensity from the previous part, we can render the illumination effects from light sources other than the sun. </p>
-			<figure>
-				<img src="Illum.png" alt="Blocks illuminated by lightsources other than the sun">
-				<figcaption>Blocks illuminated by lightsources other than the sun</figcaption>
-			</figure>
-			<p>In this step, we also added a few options to change the rgb colors of the lightsources. Other shader packs often use a light temperature setting to allow users to tweak this, but we thought it's more fun to allow green and blue lighting.</p>
-			<figure>
-				<img src="IllumSettings.png" alt="Options for changing various lighting values">
-				<figcaption>Options for changing various lighting values</figcaption>
-			</figure>
-			<p>Then, we used the shadow map to fix the sun lighting. The shadow map simply stores a depth value between 1.0f and 0.0f that shows how far away a block is from the sun, while a sky pixel always has a distance of 1.0f and a blocked pixel always has a value of 0.0f. By multiplying this value with the sun brightness value, we can fix the sun lighting rendering and see more realistic shadows.</p>
 			<figure>
 				<img src="ShadowMapInitial.png" alt="Minecraft world after integrating sun lighting depths.">
-				<figcaption>Minecraft world after integrating sun lighting depths.</figcaption>
+				<figcaption>First shadow attempt</figcaption>
 			</figure>
 
-			<h3>Shadow map Distortion</h3>
-			<p>Obviously, A simple shadow map results in a blobby and low-resolution shadow. To address this issue, we implemented a shadow map distortion algorithm that allows us to store more detailed shadows closer to the avatar(camera) and less detailed shadows further away, allowing more detailed shadows in closer positions while keeping reasonable use of computational resources. After this, our shadows are no longer blobby and can better represent the real world lighting. Furthermore, we also put a cap on the color value of pixels internally to fix some dynamic range issues. The final result looks like this:</p>
+			<p>The hard edges of the shadow were later fixed by using the supersampling metioned above, however, the big issue with this image was that the sand texture was beign washed out by "too much light". To fix this issue, we had to go into the composition shader and apply a function to the pixel brightness to reduce how often a pixel exceeds the dynamic range of the screen. After a lot of fiddling, we ended up using the function <em> brightness = min(brightness, 3.0)*0.75</em>, since it seemed to give the best results (subjectively). Here is what that looks like:</p>
+
 			<figure>
 				<img src="FinalDiffuse.png" alt="Shadows with shadow map distortion.">
-				<figcaption>Shadows with shadow map distortion.</figcaption>
+				<figcaption>Final shadow implementation</figcaption>
 			</figure>
+
+			<h3>Fancy Water</h3>
+
+			<p>The final part of our project was to implement a shader to improve the look of water in Minecraft. For reference, here is what water looks like by default in minecraft: </p>
+
+			
 		</div>
 
-		<p>Overall, we am happy with the progress we have made on our custom shader pack. we look forward to continuing to refine and improve upon these effects. In the last week, we are looking forward to explore more in realistic water shading in addition to polishing our completed diffuse lighting shader. If you want to checkout our progress so far, here is the repo: <a href="https://github.com/sharhar/CS184Shaders">https://github.com/sharhar/CS184Shaders</a></p>
+		<p>Overall, we are happy with the progress we have made on our custom shader pack. we look forward to continuing to refine and improve upon these effects. In the last week, we are looking forward to explore more in realistic water shading in addition to polishing our completed diffuse lighting shader. If you want to checkout our progress so far, here is the repo: <a href="https://github.com/sharhar/CS184Shaders">https://github.com/sharhar/CS184Shaders</a></p>
 
 		<p>Link to slides: <a href="https://docs.google.com/presentation/d/1r5H5pfFam_XR-G6DhAJwPgxq6yN9DzBNaUS2vLthXAo/edit?usp=sharing">https://docs.google.com/presentation/d/1r5H5pfFam_XR-G6DhAJwPgxq6yN9DzBNaUS2vLthXAo/edit?usp=sharing</a></p>
 
