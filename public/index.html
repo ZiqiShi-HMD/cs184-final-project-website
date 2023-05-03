@@ -159,15 +159,70 @@
 
 			<p>The final part of our project was to implement a shader to improve the look of water in Minecraft. For reference, here is what water looks like by default in minecraft: </p>
 
+			<figure>
+				<video width="640" height="360" controls loop>
+					<source src="boring_water.mkv" alt="Lighting change as camera turn towards the sun">
+				</video>
+				<figcaption>Normal Water</figcaption>
+			</figure>
+
+			<p>First of all, the color of the water is very very strong, even at very shallow places. Also, while the opacity of the water is dependent on depth, it is only dependent on the depth of that block realive to the surface, and not relative to the total distance that light has to travel through the water to get to the player. We sought to fix both of these issues.</p>
+
+			<p>We started by adding some life to the water by getting it to move like the leaves. The result of this initial code looked like this:</p>
+
+			<figure>
+				<video width="640" height="360" controls loop>
+					<source src="water.mp4" alt="Lighting change as camera turn towards the sun">
+				</video>
+				<figcaption>Water Waves</figcaption>
+			</figure>
+
+			<p>This was a good start, but the water still looked very boring, so the next thing we worked on was implementing a better "depth based" opacity than the original implementation. After some experimentation,we settled on what we think is a pretty elegant approach. For each pixel on the screen, we sample the depth of the current pixel, and the depth of the current pixel in a depth map that only includes opauqe blocks (no water). Then, we translate both depths at that screen-space coordinate to worldspace, and finnally calculate the distance between the two. Then, we use a decaying exponential function with the distance as the exponent to simulate the exponential decay of how much light reaches the eye after passing through some volume of water. Using this basic method, we were able to create a water depth effect that takes into account how much total water the light passed through to get to the players camera, and not just the depth of the water. After implementing this, we got water that looks like this:</p>
+
+			<figure>
+				<video width="640" height="360" controls loop>
+					<source src="depth_effect.mkv" alt="Lighting change as camera turn towards the sun">
+				</video>
+				<figcaption>Water with better depth</figcaption>
+			</figure>
+
+			<p>After we got that working, we moved to improving the look of the water texture. Currently, the applied water texture adds a very strong blue tint to everything inside the water. In real life, the tint that water applies is very subtle when the water is shallow. To simulate this, we simply divided the opacity of the water by 4, which seemed to give a good result. Furthermore, we applied an approximate of specular lighting to the water by raising the color value of the "shimmer" texture to 3, which made the small shimmers far more apparent. The effect of these changes looked like this:</p>
+
+			<figure>
+				<video width="640" height="360" controls loop>
+					<source src="shimmer.mkv" alt="Lighting change as camera turn towards the sun">
+				</video>
+				<figcaption>Water with "specular" shimmer</figcaption>
+			</figure>
 			
+			<p>Finally, to add another layer of detail to our water rendering, we decided to implement one final effect that added a time dependant offset to the texture coordinate that we sample from to create the effect of tiny ripples on the surface of the water. This ended being more complicated than we thought it would be because it seems that the textures for things in minecraft are stored in one massive 2D texture map, meaning that by adding offsets to the texture coord we were sampling from other textures. After many tribulations, we figured out that we needed to take the modulus base 1/64 of our offset before applying it, which fixed this wrapping issue. With that fixed, we finished our water implementation!! The final result looks like this:</p>
+			
+			<figure>
+				<video width="640" height="360" controls loop>
+					<source src="final_water.mkv" alt="Lighting change as camera turn towards the sun">
+				</video>
+				<figcaption>Our final implementation of water</figcaption>
+			</figure>
+
 		</div>
 
-		<p>Overall, we are happy with the progress we have made on our custom shader pack. we look forward to continuing to refine and improve upon these effects. In the last week, we are looking forward to explore more in realistic water shading in addition to polishing our completed diffuse lighting shader. If you want to checkout our progress so far, here is the repo: <a href="https://github.com/sharhar/CS184Shaders">https://github.com/sharhar/CS184Shaders</a></p>
+		<h2>Conclusion</h2>
 
-		<p>Link to slides: <a href="https://docs.google.com/presentation/d/1r5H5pfFam_XR-G6DhAJwPgxq6yN9DzBNaUS2vLthXAo/edit?usp=sharing">https://docs.google.com/presentation/d/1r5H5pfFam_XR-G6DhAJwPgxq6yN9DzBNaUS2vLthXAo/edit?usp=sharing</a></p>
+		<p>Overall, we are very happy with what we were able to create. There are definitely still a few minor issues (such as numerical errors when calculating the water texture offsets) which are mostly due to some limitations with the Optifine rendering engine, but for the most part we think our shaders give a more "realistic" look to the game that adds appealing visual effects without straying from the game's inherent blocky aesthetic.
+			
+			If you want to try out our shaders for youself, here is the repo: <a href="https://github.com/sharhar/CS184Shaders">https://github.com/sharhar/CS184Shaders</a></p>
+
+		<h3>Contributions</h3>
+
+		<ul>
+			<li><strong>Shahar Sandhaus: </strong> [placeholder]</li>
+			<li><strong>Duan Lyu: </strong> [placeholder]</li>
+			<li><strong>Ziqi Shi: </strong> [placeholder]</li>
+			<li><strong>Vincent Lee: </strong> [placeholder]</li>
+		</ul>
 
 
-		<h3>Milestone Summary Video</h3>
+		<h3>Final Showcase Video</h3>
 
 		<figure>
 			<video width="640" height="360" controls loop>
